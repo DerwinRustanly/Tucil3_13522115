@@ -51,16 +51,16 @@ public class WordLadderSolver {
     
     public static void main(String[] args) {
         try {
-            WordLadderSolver solver = new WordLadderSolver("words_alpha.txt");
-            int start = LocalTime.now().get( ChronoField.MILLI_OF_SECOND );
-            Solution solution = solver.solve("idea", "plan", "A*");
+            WordLadderSolver solver = new WordLadderSolver("dictionary.txt");
+            long start = System.currentTimeMillis();
+            Solution solution = solver.solve("idea", "plan", "UCS");
             if (solution.path.isEmpty()) {
                 System.out.println("No solution found.");
             } else {
                 solution.path.forEach(System.out::println);
                 System.out.println("Visited words: " + solution.visited_words);
             }
-            int end = LocalTime.now().get( ChronoField.MILLI_OF_SECOND );
+            long end = System.currentTimeMillis();
             System.out.println("Duration: " + (end-start) + " ms");
         } catch (IOException e) {
             System.err.println("Failed to load dictionary: " + e.getMessage());
