@@ -2,7 +2,6 @@ package src;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.io.IOException;
 import src.objects.*;
 
@@ -29,6 +28,8 @@ public class WordLadderGUI extends JFrame {
     }
 
     private void initUI() {
+        Font commonFont = new Font("Monospaced", Font.PLAIN, 16); // Create a common font object
+    
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayout(1, 2, 10, 0)); // Changed to 1 row, 2 columns
         getContentPane().add(mainPanel);
@@ -47,19 +48,30 @@ public class WordLadderGUI extends JFrame {
         // Input panel with labels
         JPanel inputPanel = new JPanel(new GridLayout(2, 2, 5, 5));
         inputPanel.setBackground(new Color(45, 45, 45)); // Dark background for the input panel
-        inputPanel.add(new JLabel("<html><font color='white'>Start Word:</font></html>"));
+        JLabel startWordLabel = new JLabel("<html><font color='white'>Start Word:</font></html>");
+        startWordLabel.setFont(commonFont);
+        inputPanel.add(startWordLabel);
         startWordField = new JTextField();
+        startWordField.setFont(commonFont);
         inputPanel.add(startWordField);
-        inputPanel.add(new JLabel("<html><font color='white'>End Word:</font></html>"));
+        JLabel endWordLabel = new JLabel("<html><font color='white'>End Word:</font></html>");
+        endWordLabel.setFont(commonFont);
+        inputPanel.add(endWordLabel);
         endWordField = new JTextField();
+        endWordField.setFont(commonFont);
         inputPanel.add(endWordField);
     
         // Buttons panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-        buttonPanel.setBackground(new Color(60, 63, 65)); // Dark background for the button panel
+        buttonPanel.setBackground(new Color(45, 45, 45)); // Dark background for the button panel
         ucsButton = new JButton("UCS");
         gbfsButton = new JButton("GBFS");
         aStarButton = new JButton("A*");
+        // Set font for buttons
+        ucsButton.setFont(commonFont);
+        gbfsButton.setFont(commonFont);
+        aStarButton.setFont(commonFont);
+        // Set foreground and background for buttons
         ucsButton.setForeground(Color.WHITE);
         gbfsButton.setForeground(Color.WHITE);
         aStarButton.setForeground(Color.WHITE);
@@ -79,6 +91,7 @@ public class WordLadderGUI extends JFrame {
         // Result area
         resultArea = new JTextArea(10, 20);
         resultArea.setEditable(false);
+        resultArea.setFont(commonFont); // Set font for the text area
         resultArea.setBackground(new Color(30, 30, 30)); // Dark background for the text area
         resultArea.setForeground(new Color(255, 255, 255)); // White text
         JScrollPane scrollPane = new JScrollPane(resultArea);
