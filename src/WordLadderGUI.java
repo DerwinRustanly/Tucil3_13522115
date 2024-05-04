@@ -127,7 +127,9 @@ public class WordLadderGUI extends JFrame {
             htmlResult.append("</body></html>");
             resultArea.setText(htmlResult.toString());
         } catch (Exception e) {
-            resultArea.setText("Error: " + e.getMessage());
+            StringBuilder htmlResult = new StringBuilder("<html><body style='background-color:rgb(70,70,70); color:white; font-family:Monospace; font-size:16pt;'>");
+            htmlResult.append("Error: " + e.getMessage());
+            resultArea.setText(htmlResult.toString());
         }
     }
 
