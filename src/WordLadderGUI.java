@@ -112,36 +112,65 @@ public class WordLadderGUI extends JFrame {
         String start = startWordField.getText().trim().toUpperCase();
         String end = endWordField.getText().trim().toUpperCase();
         try {
-            long startTime = System.nanoTime() / 1000000;
+            long startTime = System.nanoTime();
             Solution solution = solver.solve(start, end, algorithm);
-            long endTime = System.nanoTime() / 1000000;
-            StringBuilder htmlResult = new StringBuilder("<html><body style='background-color:rgb(70,70,70); color:white; font-family:Monospace; font-size:16pt;'>Path:<br>");
-            htmlResult.append(1+ ": "+ solution.path.get(0) + "<br>");
-            for (int i = 0; i < solution.path.size() - 1; i++) {
-                String current = solution.path.get(i);
-                String next = solution.path.get(i + 1);
-                htmlResult.append((i + 2) + ": " + formatWordDiff(current, next) + "<br>");
-            }
-            htmlResult.append("Visited words: " + solution.visited_words + "<br>");
-            htmlResult.append("Duration: " + (endTime - startTime) + " ms<br>");
-            htmlResult.append("</body></html>");
-            resultArea.setText(htmlResult.toString());
+            long endTime = System.nanoTime();
+            displayResults(solution.visited_words, solution.path, startTime, endTime);
         } catch (Exception e) {
-            StringBuilder htmlResult = new StringBuilder("<html><body style='background-color:rgb(70,70,70); color:white; font-family:Monospace; font-size:16pt;'>");
-            htmlResult.append("Error: " + e.getMessage());
-            resultArea.setText(htmlResult.toString());
+            resultArea.setText("<html><body style='font-family:Monospace; font-size:16pt; color:white; background-color:rgb(70,70,70);'><p>Error: " + e.getMessage() + "</p></body></html>");
         }
     }
+    
 
-    private String formatWordDiff(String word1, String word2) {
-        StringBuilder formatted = new StringBuilder();
+    private void displayResults(int visitedNodesCount, java.util.List<String> ladder, long startTime, long endTime) {
+        long duration = (endTime - startTime) / 1000000; // Convert to milliseconds
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(
+                "<html><body style='font-family:Monospace; font-size:16pt; color:white; background-color:rgb(70,70,70); text-align:center;'>");
+
+        if (ladder != null && !ladder.isEmpty()) {
+            sb.append(
+                    "<h2 style='color: #AAA; font-weight: bold; margin-bottom: 10px; border-bottom: 2px solid #666; display: inline-block; padding-bottom: 5px;'>Shortest Ladder</h2>");
+            sb.append("<div style='margin:auto; width:fit-content;'>");
+            sb.append("<table style='border-collapse:collapse; margin:auto;'>");
+            sb.append("<tr><th style='padding: 5px;'>Step</th><th>Word</th></tr>");
+            sb.append("<tr><td>1</td><td>").append(formatWord(ladder.get(0), ladder.get(0))).append("</td></tr>");
+            for (int i = 0; i < ladder.size() - 1; i++) {
+                sb.append("<tr><td>")
+                        .append(i + 2)
+                        .append("</td><td>")
+                        .append(formatWord(ladder.get(i), ladder.get(i + 1)))
+                        .append("</td></tr>");
+            }
+            sb.append("</table></div>");
+        } else {
+            sb.append("<p>No ladder found.</p>");
+        }
+
+        sb.append("<p style='margin-top:20px;'>Visited words: ").append(visitedNodesCount).append("</p>");
+        sb.append("<p>Execution time: ").append(duration).append(" ms</p>");
+        sb.append("</body></html>");
+
+        resultArea.setText(sb.toString());
+    }
+
+    private String formatWord(String word1, String word2) {
+        StringBuilder formatted = new StringBuilder("<table style='margin: auto;'><tr>");
         for (int i = 0; i < word1.length(); i++) {
-            if (i < word2.length() && word1.charAt(i) != word2.charAt(i)) {
-                formatted.append("<span style='color:red;'>").append(word2.charAt(i)).append("</span>");
-            } else if (i < word2.length()) {
-                formatted.append(word2.charAt(i));
+            if (i < word2.length()) {
+                String bgColor = word1.charAt(i) == word2.charAt(i) ? "lightgray" : "red";
+                String color = "white";
+                formatted.append("<td style='width:20px; height:20px; background-color:")
+                        .append(bgColor)
+                        .append("; color:")
+                        .append(color)
+                        .append("; text-align:center; border:1px solid black;'>")
+                        .append(word2.charAt(i))
+                        .append("</td>");
             }
         }
+        formatted.append("</tr></table>");
         return formatted.toString();
     }
 
