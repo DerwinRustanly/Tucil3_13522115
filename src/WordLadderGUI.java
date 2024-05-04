@@ -1,8 +1,12 @@
 package src;
 
 import javax.swing.*;
+import javax.swing.text.html.HTMLEditorKit;
+
 import java.awt.*;
 import java.io.IOException;
+import java.util.stream.IntStream;
+
 import src.objects.*;
 
 public class WordLadderGUI extends JFrame {
@@ -11,7 +15,7 @@ public class WordLadderGUI extends JFrame {
     private JButton ucsButton;
     private JButton gbfsButton;
     private JButton aStarButton;
-    private JTextArea resultArea;
+    private JTextPane resultArea;
     private WordLadderSolver solver;
 
     public WordLadderGUI() {
@@ -29,22 +33,22 @@ public class WordLadderGUI extends JFrame {
 
     private void initUI() {
         Font commonFont = new Font("Monospaced", Font.PLAIN, 16); // Create a common font object
-    
+
         JPanel mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayout(1, 2, 10, 0)); // Changed to 1 row, 2 columns
         getContentPane().add(mainPanel);
-    
+
         // Panel that will center the leftPanel contents vertically and horizontally
         JPanel centeringPanel = new JPanel(new GridBagLayout());
         centeringPanel.setBackground(new Color(45, 45, 45));
         mainPanel.add(centeringPanel);
-    
+
         // Left Panel for inputs and buttons
         JPanel leftPanel = new JPanel();
         leftPanel.setLayout(new BoxLayout(leftPanel, BoxLayout.Y_AXIS));
         leftPanel.setBackground(new Color(45, 45, 45)); // Dark background for the left panel
         centeringPanel.add(leftPanel); // Add leftPanel to the centering panel
-    
+
         // Input panel with labels
         JPanel inputPanel = new JPanel(new GridLayout(2, 2, 5, 5));
         inputPanel.setBackground(new Color(45, 45, 45)); // Dark background for the input panel
@@ -60,7 +64,7 @@ public class WordLadderGUI extends JFrame {
         endWordField = new JTextField();
         endWordField.setFont(commonFont);
         inputPanel.add(endWordField);
-    
+
         // Buttons panel
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
         buttonPanel.setBackground(new Color(45, 45, 45)); // Dark background for the button panel
@@ -81,22 +85,23 @@ public class WordLadderGUI extends JFrame {
         buttonPanel.add(ucsButton);
         buttonPanel.add(gbfsButton);
         buttonPanel.add(aStarButton);
-    
+
         // Adding a rigid area for spacing before the input panel
         leftPanel.add(Box.createVerticalGlue());
         leftPanel.add(inputPanel);
         leftPanel.add(buttonPanel);
         leftPanel.add(Box.createVerticalGlue()); // Adding space after the button panel
-    
+
         // Result area
-        resultArea = new JTextArea(10, 20);
+        resultArea = new JTextPane();
+        resultArea.setEditorKit(new HTMLEditorKit());
+        resultArea.setContentType("text/html");
         resultArea.setEditable(false);
-        resultArea.setFont(commonFont); // Set font for the text area
-        resultArea.setBackground(new Color(30, 30, 30)); // Dark background for the text area
-        resultArea.setForeground(new Color(255, 255, 255)); // White text
+        String initialHtml = "<html><body style='color:white; background-color:rgb(70,70,70); font-family:Monospace; font-size:16pt;'>";
+        resultArea.setText(initialHtml);
         JScrollPane scrollPane = new JScrollPane(resultArea);
         mainPanel.add(scrollPane); // Add result area to the main panel as the second column
-    
+
         // Setup buttons with actions
         ucsButton.addActionListener(e -> solve("ucs"));
         gbfsButton.addActionListener(e -> solve("gbfs"));
@@ -104,19 +109,38 @@ public class WordLadderGUI extends JFrame {
     }
 
     private void solve(String algorithm) {
-        String start = startWordField.getText().trim().toUpperCase(); // Ensure upper case
-        String end = endWordField.getText().trim().toUpperCase(); // Ensure upper case
+        String start = startWordField.getText().trim().toUpperCase();
+        String end = endWordField.getText().trim().toUpperCase();
         try {
-            long startTime = System.currentTimeMillis();
+            long startTime = System.nanoTime() / 1000000;
             Solution solution = solver.solve(start, end, algorithm);
-            long endTime = System.currentTimeMillis();
-            resultArea.setText("Path:\n");
-            solution.path.forEach(word -> resultArea.append(word + "\n"));
-            resultArea.append("Visited words: " + solution.visited_words + "\n");
-            resultArea.append("Duration: " + (endTime - startTime) + " ms\n");
+            long endTime = System.nanoTime() / 1000000;
+            StringBuilder htmlResult = new StringBuilder("<html><body style='background-color:rgb(70,70,70); color:white; font-family:Monospace; font-size:16pt;'>Path:<br>");
+            htmlResult.append(1+ ": "+ solution.path.get(0) + "<br>");
+            for (int i = 0; i < solution.path.size() - 1; i++) {
+                String current = solution.path.get(i);
+                String next = solution.path.get(i + 1);
+                htmlResult.append((i + 2) + ": " + formatWordDiff(current, next) + "<br>");
+            }
+            htmlResult.append("Visited words: " + solution.visited_words + "<br>");
+            htmlResult.append("Duration: " + (endTime - startTime) + " ms<br>");
+            htmlResult.append("</body></html>");
+            resultArea.setText(htmlResult.toString());
         } catch (Exception e) {
             resultArea.setText("Error: " + e.getMessage());
         }
+    }
+
+    private String formatWordDiff(String word1, String word2) {
+        StringBuilder formatted = new StringBuilder();
+        for (int i = 0; i < word1.length(); i++) {
+            if (i < word2.length() && word1.charAt(i) != word2.charAt(i)) {
+                formatted.append("<span style='color:red;'>").append(word2.charAt(i)).append("</span>");
+            } else if (i < word2.length()) {
+                formatted.append(word2.charAt(i));
+            }
+        }
+        return formatted.toString();
     }
 
     private WordLadderSolver createSolver(String dictionaryPath) {
@@ -124,7 +148,7 @@ public class WordLadderGUI extends JFrame {
             return new WordLadderSolver(dictionaryPath);
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this, "Failed to load dictionary: " + e.getMessage(),
-                                          "Error", JOptionPane.ERROR_MESSAGE);
+                    "Error", JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }
