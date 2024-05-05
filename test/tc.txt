@@ -1,0 +1,7 @@
+1. CAR - SIX (3 huruf)
+2. TRIM - NEXT (3 huruf)
+3. BEST - CASE (4 huruf)
+4. LEMON - APPLE (5 huruf)
+5. CHARGE - COMEDY (6 huruf)
+6. - (kata invalid)
+7. APPLE - PIE (kata dengan panjang berbeda)
